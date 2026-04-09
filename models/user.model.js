@@ -1,6 +1,6 @@
 const { model, Schema } = require("mongoose");
 
-// creating userschema which has enums for the three roles (admin, agency, visitor)
+// creating userschema which has enums for the five roles (admin, agency, visitor, hotel-owner and transport-owner)
 const UserSchema = new Schema({
   email: {
     type: String,
