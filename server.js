@@ -11,6 +11,7 @@ const destinationRouter = require("./routes/destination.route");
 const packageRouter = require("./routes/package.route");
 const hotelRouter = require("./routes/hotel.route");
 const transportRouter = require("./routes/transport.route");
+const bookingRouter = require("./routes/booking.route");
 
 // storing the .env info inside variables
 const PORT = process.env.PORT;
@@ -28,6 +29,7 @@ app.use("/api/destinations/", destinationRouter);
 app.use("/api/packages/", packageRouter);
 app.use("/api/hotels/", hotelRouter);
 app.use("/api/transports/", transportRouter);
+app.use("/api/bookings/", bookingRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running fine on the port number ${PORT}`);
