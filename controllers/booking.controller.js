@@ -2,6 +2,7 @@ const Booking = require("../models/booking.model");
 const Package = require("../models/package.schema");
 const Hotel = require("../models/hotel.model");
 const Transport = require("../models/transport.model");
+const sendNotification = require("../utils/sendNotification");
 
 // Universal Booking Controller
 const createBooking = async (req, res) => {
@@ -10,11 +11,9 @@ const createBooking = async (req, res) => {
 
     // 1. Basic validation
     if (!itemType || !itemId || !guests || !totalAmount) {
-      return res
-        .status(400)
-        .json({
-          message: "itemType, itemId, guests, and totalAmount are required.",
-        });
+      return res.status(400).json({
+        message: "itemType, itemId, guests, and totalAmount are required.",
+      });
     }
 
     // 2. Verify the item actually exists before booking
@@ -42,6 +41,14 @@ const createBooking = async (req, res) => {
     });
 
     const savedBooking = await newBooking.save();
+
+    // Fire off the automated notification in the background
+    await sendNotification(
+      req.user.id,
+      "Booking Confirmed! 🎉",
+      `Your booking for the ${itemType} has been successfully processed. Total Amount: ₹${totalAmount}.`,
+      "booking",
+    );
 
     return res.status(201).json({
       message: "Booking successful!",
