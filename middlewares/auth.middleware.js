@@ -79,4 +79,29 @@ const isAgency = (req, res, next) => {
   next();
 };
 
-module.exports = { validateUser, validateToken, isAdmin, isAgency };
+const isHotelOwner = (req, res, next) => {
+  if (!req.user || req.user.role !== "hotel-owner") {
+    return res.status(403).json({
+      message: "Access denied. Only hotel owners can perform this action.",
+    });
+  }
+  next();
+};
+
+const isTransportOwner = (req, res, next) => {
+  if (!req.user || req.user.role !== "transport-owner") {
+    return res.status(403).json({
+      message: "Access denied. Only transport owners can perform this action.",
+    });
+  }
+  next();
+};
+
+module.exports = {
+  validateUser,
+  validateToken,
+  isAdmin,
+  isAgency,
+  isHotelOwner,
+  isTransportOwner,
+};
