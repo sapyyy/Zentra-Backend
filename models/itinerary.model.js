@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 // custom itinerary for the user to plan their own package
 const ItinerarySchema = new Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  user: { type: Schema.Types.ObjectId, ref: "User" },
   title: { type: String, required: true },
   startDate: { type: Date },
   endDate: { type: Date },

@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 // transport schema for the transports ['bus', 'cab', 'flight', 'train']
-const TransportSchema = {
+const TransportSchema = new Schema({
   owner: {
     type: Schema.Types.ObjectId,
     ref: "User",
@@ -33,7 +33,7 @@ const TransportSchema = {
   seatsAvailable: {
     type: Number,
   },
-};
+});
 
 const Transport = model("Transport", TransportSchema);
 module.exports = Transport;

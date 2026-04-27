@@ -1,5 +1,6 @@
 const z = require("zod");
 const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
 dotenv.config();
 
 const newUser = z.object({
@@ -53,4 +54,17 @@ const validateToken = (req, res, next) => {
   });
 };
 
-module.exports = { validateUser, validateToken };
+const isAdmin = (req, res, next) => {
+  // validateToken already verified the user and attached them to req.user
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(403).json({
+      message:
+        "Access denied. Admin privileges required to perform this action.",
+    });
+  }
+
+  // If they are an admin, let them proceed to the controller
+  next();
+};
+
+module.exports = { validateUser, validateToken, isAdmin };

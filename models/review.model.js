@@ -9,7 +9,7 @@ const ReviewSchema = new Schema({
     required: true,
   },
   targetId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     refPath: "targetType",
   },

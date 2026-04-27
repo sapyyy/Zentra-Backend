@@ -40,8 +40,15 @@ const authControllerRegister = async (req, res) => {
     });
     const userCreated = await newUser.save();
 
-    // creating a jwt token here
-    const token = jwt.sign({ email }, process.env.JWT_SECRET);
+    // creating a jwt token here - NOW INCLUDES ID AND ROLE
+    const token = jwt.sign(
+      {
+        id: userCreated._id,
+        email: userCreated.email,
+        role: userCreated.role,
+      },
+      process.env.JWT_SECRET,
+    );
 
     // lastly storing it inside the cookie for future logins
     // maxAge is 7 days
@@ -86,15 +93,22 @@ const authControllerLogin = async (req, res) => {
     }
 
     // using bcrypt to compare the password
-    const isMatch = bcrypt.compare(password, existingUser.password);
+    const isMatch = await bcrypt.compare(password, existingUser.password);
     if (!isMatch) {
       return res.status(404).json({
         message: "Invalid Password",
       });
     }
 
-    // generating jwt token for the login
-    const token = jwt.sign({ email }, process.env.JWT_SECRET);
+    // generating jwt token for the login - NOW INCLUDES ID AND ROLE
+    const token = jwt.sign(
+      {
+        id: existingUser._id,
+        email: existingUser.email,
+        role: existingUser.role,
+      },
+      process.env.JWT_SECRET,
+    );
 
     // storing it inside the cookie
     res.cookie("authcookie", token, {

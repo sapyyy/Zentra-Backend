@@ -13,7 +13,7 @@ const BookingSchema = new Schema({
     required: true,
   },
   itemId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     refPath: "itemType", // dynamic reference which we can populate
   },
