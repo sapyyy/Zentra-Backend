@@ -67,4 +67,16 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
-module.exports = { validateUser, validateToken, isAdmin };
+const isAgency = (req, res, next) => {
+  // Ensure the user is logged in and has the agency role
+  if (!req.user || req.user.role !== "agency") {
+    return res.status(403).json({
+      message:
+        "Access denied. Only registered travel agencies can create packages.",
+    });
+  }
+
+  next();
+};
+
+module.exports = { validateUser, validateToken, isAdmin, isAgency };

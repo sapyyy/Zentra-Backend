@@ -1,33 +1,36 @@
 const Destination = require("../models/destination.model");
 
-// Create a new destination
 const createDestination = async (req, res) => {
   try {
-    const {
-      name,
-      country,
-      description,
-      images,
-      bestTimeToVisit,
-      coordinates,
-      tags,
-    } = req.body;
+    const { name, country, description, bestTimeToVisit, tags } = req.body;
 
-    // Basic validation
     if (!name || !country || !description) {
       return res
         .status(400)
         .json({ message: "Name, country, and description are required." });
     }
 
+    // Since coordinates is an object, form-data sends it as a stringified JSON.
+    // We need to parse it back into an object.
+    let parsedCoordinates = {};
+    if (req.body.coordinates) {
+      parsedCoordinates = JSON.parse(req.body.coordinates);
+    }
+
+    // Extract the Cloudinary secure URLs from the req.files array
+    let imageUrls = [];
+    if (req.files && req.files.length > 0) {
+      imageUrls = req.files.map((file) => file.path); // 'path' contains the Cloudinary URL
+    }
+
     const newDestination = new Destination({
       name,
       country,
       description,
-      images,
+      images: imageUrls, // Save the array of Cloudinary URLs to MongoDB
       bestTimeToVisit,
-      coordinates,
-      tags,
+      coordinates: parsedCoordinates,
+      tags: req.body.tags ? req.body.tags.split(",") : [], // If passing tags as comma-separated string
     });
 
     const savedDestination = await newDestination.save();
