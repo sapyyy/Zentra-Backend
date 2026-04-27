@@ -9,6 +9,7 @@ const {
 const {
   authControllerRegister,
   authControllerLogin,
+  verifyOTP,
 } = require("../controllers/auth.controller");
 
 router.post(
@@ -18,5 +19,6 @@ router.post(
   authControllerRegister,
 );
 router.post("/login", authControllerLogin);
+router.post("/verify-otp", verifyOTP);
 
 module.exports = router;

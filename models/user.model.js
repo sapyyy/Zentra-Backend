@@ -28,6 +28,15 @@ const UserSchema = new Schema({
   profilePicture: {
     type: String,
   },
+  // Add these inside your UserSchema definition:
+  otp: {
+    type: String,
+    default: null,
+  },
+  otpExpires: {
+    type: Date,
+    default: null,
+  },
   isActive: {
     type: Boolean,
     default: true,
