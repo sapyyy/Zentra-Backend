@@ -101,6 +101,7 @@ const authControllerLogin = async (req, res) => {
     // --- NEW 2FA LOGIC ---
     // 1. Generate a random 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(otp);
 
     // 2. Hash it before saving to the database (Best Practice)
     const salt = await bcrypt.genSalt(10);
@@ -116,7 +117,6 @@ const authControllerLogin = async (req, res) => {
       message: message,
     });
 
-    // Notice we DO NOT send the JWT cookie here anymore!
     return res.status(200).json({
       message: "OTP sent to your email. Please verify to complete login.",
       email: existingUser.email, // Send email back so frontend knows who is verifying

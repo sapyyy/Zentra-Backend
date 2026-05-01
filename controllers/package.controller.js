@@ -3,43 +3,49 @@ const Package = require("../models/package.schema");
 // Create a new travel package
 const createPackage = async (req, res) => {
   try {
-    const {
-      title,
-      destination,
-      duration,
-      price,
-      itinerary,
-      inclusions,
-      exclusions,
-      images,
-      availability,
-    } = req.body;
+    const { title, price, availability, destination } = req.body;
 
-    // Basic validation
-    if (!title || !destination || !price) {
-      return res
-        .status(400)
-        .json({ message: "Title, destination ID, and price are required." });
+    if (!title || !price) {
+      return res.status(400).json({ message: "Title and price are required." });
     }
 
+    // 1. Parse the complex form-data strings back into Objects/Arrays
+    let parsedDuration = {};
+    if (req.body.duration) parsedDuration = JSON.parse(req.body.duration);
+
+    let parsedItinerary = [];
+    if (req.body.itinerary) parsedItinerary = JSON.parse(req.body.itinerary);
+
+    let parsedInclusions = [];
+    if (req.body.inclusions) parsedInclusions = JSON.parse(req.body.inclusions);
+
+    let parsedExclusions = [];
+    if (req.body.exclusions) parsedExclusions = JSON.parse(req.body.exclusions);
+
+    // 2. Extract Cloudinary URLs from the files uploaded by Multer
+    let imageUrls = [];
+    if (req.files && req.files.length > 0) {
+      imageUrls = req.files.map((file) => file.path);
+    }
+
+    // 3. Create the document, forcing the agency to be the logged-in user
     const newPackage = new Package({
+      agency: req.user.id,
+      destination,
       title,
-      agency: req.user.id, // Extracted securely from the JWT token
-      destination, // This should be the _id of an existing destination
-      duration,
       price,
-      itinerary,
-      inclusions,
-      exclusions,
-      images,
+      duration: parsedDuration,
+      itinerary: parsedItinerary,
+      inclusions: parsedInclusions,
+      exclusions: parsedExclusions,
+      images: imageUrls,
       availability,
     });
 
     const savedPackage = await newPackage.save();
-    return res.status(201).json({
-      message: "Package created successfully",
-      package: savedPackage,
-    });
+    return res
+      .status(201)
+      .json({ message: "Package created successfully", package: savedPackage });
   } catch (err) {
     return res
       .status(500)

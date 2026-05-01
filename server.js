@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const connectDB = require("./config/db");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 // importing routes
 const authRouter = require("./routes/auth.route");
@@ -27,6 +28,7 @@ connectDB(URI);
 // middlewares
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
 
 app.use("/api/auth/", authRouter);
 app.use("/api/destinations/", destinationRouter);

@@ -5,6 +5,8 @@ const {
   getAllPackages,
   getPackageById,
 } = require("../controllers/package.controller");
+// Import your Cloudinary upload middleware
+const upload = require("../config/cloudinary");
 
 const router = express.Router();
 
@@ -13,6 +15,12 @@ router.get("/", getAllPackages);
 router.get("/:id", getPackageById);
 
 // Protected routes: Only Agencies can create packages
-router.post("/", validateToken, isAgency, createPackage);
+router.post(
+  "/",
+  validateToken,
+  isAgency,
+  upload.array("images", 5),
+  createPackage,
+);
 
 module.exports = router;
