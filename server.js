@@ -17,6 +17,7 @@ const aiRouter = require("./routes/ai.route");
 const reviewRouter = require("./routes/review.route");
 const notificationRouter = require("./routes/notification.route");
 const dashboardRouter = require("./routes/dashboard.route");
+const userRouter = require("./routes/user.route");
 
 // storing the .env info inside variables
 const PORT = process.env.PORT;
@@ -40,6 +41,7 @@ app.use("/api/ai/", aiRouter);
 app.use("/api/reviews/", reviewRouter);
 app.use("/api/notifications/", notificationRouter);
 app.use("/api/dashboard/", dashboardRouter);
+app.use("/api/users/", userRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running fine on the port number ${PORT}`);
