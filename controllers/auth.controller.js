@@ -45,20 +45,6 @@ const authControllerRegister = async (req, res) => {
 
     const userCreated = await newUser.save();
 
-    const token = jwt.sign(
-      {
-        id: userCreated._id,
-        email: userCreated.email,
-        role: userCreated.role,
-      },
-      process.env.JWT_SECRET,
-    );
-
-    res.cookie("authcookie", token, {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      httpOnly: true,
-    });
-
     return res.status(201).json({
       message: "User registration successful",
       user: {
@@ -66,7 +52,6 @@ const authControllerRegister = async (req, res) => {
         firstName: firstName,
         lastName: lastName,
         role: role,
-        profilePicture: profilePictureUrl, // Send it back to the frontend to display instantly
       },
     });
   } catch (err) {
