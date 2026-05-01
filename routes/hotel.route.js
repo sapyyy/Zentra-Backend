@@ -6,6 +6,8 @@ const {
 const {
   createHotel,
   getAllHotels,
+  updateHotel,
+  deleteHotel,
 } = require("../controllers/hotel.controller");
 const upload = require("../config/cloudinary");
 
@@ -21,5 +23,17 @@ router.post(
   upload.array("images", 5),
   createHotel,
 );
+
+// Update an existing hotel
+router.put(
+  "/:id",
+  validateToken,
+  isHotelOwner,
+  upload.array("images", 5),
+  updateHotel,
+);
+
+// Delete a hotel
+router.delete("/:id", validateToken, isHotelOwner, deleteHotel);
 
 module.exports = router;

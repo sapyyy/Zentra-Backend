@@ -99,4 +99,89 @@ const getAllHotels = async (req, res) => {
   }
 };
 
-module.exports = { createHotel, getAllHotels };
+// Update a Hotel (Only by the owning Hotel-Owner)
+const updateHotel = async (req, res) => {
+  try {
+    const hotelId = req.params.id;
+
+    // 1. Find the hotel
+    const existingHotel = await Hotel.findById(hotelId);
+    if (!existingHotel) {
+      return res.status(404).json({ message: "Hotel not found." });
+    }
+
+    // 2. AUTHORIZATION CHECK: Does this owner own this hotel?
+    if (existingHotel.owner.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Unauthorized. You can only edit your own properties.",
+      });
+    }
+
+    // 3. Handle form-data parsing for arrays/objects
+    let updateData = { ...req.body };
+
+    // If features were updated and sent as a stringified array
+    if (req.body.features) {
+      updateData.features = JSON.parse(req.body.features);
+    }
+
+    // If roomTypes were updated and sent as a stringified array of objects
+    if (req.body.roomTypes) {
+      updateData.roomTypes = JSON.parse(req.body.roomTypes);
+    }
+
+    // 4. Handle new images from Cloudinary/Multer
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map((file) => file.path);
+      // Replace old images with new ones (or you could append them based on your UI needs)
+      updateData.images = newImages;
+    }
+
+    // 5. Save the updates
+    const updatedHotel = await Hotel.findByIdAndUpdate(
+      hotelId,
+      { $set: updateData },
+      { new: true, runValidators: true },
+    );
+
+    return res.status(200).json({
+      message: "Hotel updated successfully",
+      hotel: updatedHotel,
+    });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Error updating hotel", error: err.message });
+  }
+};
+
+// Delete a Hotel (Only by the owning Hotel-Owner)
+const deleteHotel = async (req, res) => {
+  try {
+    const hotelId = req.params.id;
+
+    // 1. Find the hotel
+    const existingHotel = await Hotel.findById(hotelId);
+    if (!existingHotel) {
+      return res.status(404).json({ message: "Hotel not found." });
+    }
+
+    // 2. AUTHORIZATION CHECK
+    if (existingHotel.owner.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Unauthorized. You can only delete your own properties.",
+      });
+    }
+
+    // 3. Delete the hotel from the database
+    await Hotel.findByIdAndDelete(hotelId);
+
+    return res.status(200).json({ message: "Hotel deleted successfully." });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Error deleting hotel", error: err.message });
+  }
+};
+
+module.exports = { createHotel, getAllHotels, updateHotel, deleteHotel };

@@ -4,6 +4,8 @@ const {
   createPackage,
   getAllPackages,
   getPackageById,
+  updatePackage,
+  deletePackage,
 } = require("../controllers/package.controller");
 // Import your Cloudinary upload middleware
 const upload = require("../config/cloudinary");
@@ -22,5 +24,16 @@ router.post(
   upload.array("images", 5),
   createPackage,
 );
+// Update an existing package
+router.put(
+  "/:id",
+  validateToken,
+  isAgency,
+  upload.array("images", 5),
+  updatePackage,
+);
+
+// Delete a package
+router.delete("/:id", validateToken, isAgency, deletePackage);
 
 module.exports = router;

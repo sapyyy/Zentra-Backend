@@ -1,30 +1,47 @@
-const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose");
 
-// custom itinerary for the user to plan their own package
-const ItinerarySchema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: "User" },
-  title: { type: String, required: true },
-  startDate: { type: Date },
-  endDate: { type: Date },
-  dailyPlan: [
-    {
-      date: { type: Date },
-      notes: { type: String },
-      savedItems: [
-        {
-          itemType: {
-            type: String,
-            enum: ["Destination", "Hotel", "Transport"],
-          },
-          itemId: {
-            type: Schema.Types.ObjectId,
-            refPath: "dailyPlan.savedItems.itemType",
-          },
-        },
-      ],
+const ItinerarySchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-  ],
-});
+    destination: {
+      type: String,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+      default: "My Custom Trip",
+    },
+    duration: {
+      type: String, // e.g., "3 Days"
+      required: true,
+    },
+    budgetLevel: {
+      type: String,
+      enum: ["budget", "moderate", "luxury"],
+      default: "moderate",
+    },
+    // We store the AI's generated days as an array of objects
+    days: [
+      {
+        dayNumber: Number,
+        theme: String,
+        activities: [
+          {
+            time: String,
+            activity: String,
+            location: String,
+            costEstimate: String,
+          },
+        ],
+      },
+    ],
+  },
+  { timestamps: true },
+);
 
-const Itinerary = model("Itinerary", ItinerarySchema);
-module.exports = Itinerary;
+module.exports = mongoose.model("Itinerary", ItinerarySchema);

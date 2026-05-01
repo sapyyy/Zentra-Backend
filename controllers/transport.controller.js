@@ -73,4 +73,75 @@ const getAllTransports = async (req, res) => {
   }
 };
 
-module.exports = { createTransport, getAllTransports };
+// Update a Transport (Only by the owning Transport-Owner)
+const updateTransport = async (req, res) => {
+  try {
+    const transportId = req.params.id;
+
+    // 1. Find the transport listing
+    const existingTransport = await Transport.findById(transportId);
+    if (!existingTransport) {
+      return res.status(404).json({ message: "Transport not found." });
+    }
+
+    // 2. AUTHORIZATION CHECK: Does this owner own this transport listing?
+    if (existingTransport.owner.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Unauthorized. You can only edit your own transport listings.",
+      });
+    }
+
+    // 3. Save the updates (Since transport is mostly flat text data, we can directly pass req.body)
+    const updatedTransport = await Transport.findByIdAndUpdate(
+      transportId,
+      { $set: req.body },
+      { new: true, runValidators: true },
+    );
+
+    return res.status(200).json({
+      message: "Transport updated successfully",
+      transport: updatedTransport,
+    });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Error updating transport", error: err.message });
+  }
+};
+
+// Delete a Transport (Only by the owning Transport-Owner)
+const deleteTransport = async (req, res) => {
+  try {
+    const transportId = req.params.id;
+
+    // 1. Find the transport listing
+    const existingTransport = await Transport.findById(transportId);
+    if (!existingTransport) {
+      return res.status(404).json({ message: "Transport not found." });
+    }
+
+    // 2. AUTHORIZATION CHECK
+    if (existingTransport.owner.toString() !== req.user.id) {
+      return res.status(403).json({
+        message:
+          "Unauthorized. You can only delete your own transport listings.",
+      });
+    }
+
+    // 3. Delete the transport from the database
+    await Transport.findByIdAndDelete(transportId);
+
+    return res.status(200).json({ message: "Transport deleted successfully." });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Error deleting transport", error: err.message });
+  }
+};
+
+module.exports = {
+  createTransport,
+  getAllTransports,
+  updateTransport,
+  deleteTransport,
+};
