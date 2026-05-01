@@ -13,11 +13,9 @@ const createTransport = async (req, res) => {
     } = req.body;
 
     if (!type || !origin || !destination || !price) {
-      return res
-        .status(400)
-        .json({
-          message: "Type, origin, destination, and price are required.",
-        });
+      return res.status(400).json({
+        message: "Type, origin, destination, and price are required.",
+      });
     }
 
     const newTransport = new Transport({
@@ -32,12 +30,10 @@ const createTransport = async (req, res) => {
     });
 
     const savedTransport = await newTransport.save();
-    return res
-      .status(201)
-      .json({
-        message: "Transport added successfully",
-        transport: savedTransport,
-      });
+    return res.status(201).json({
+      message: "Transport added successfully",
+      transport: savedTransport,
+    });
   } catch (err) {
     return res
       .status(500)
@@ -47,22 +43,33 @@ const createTransport = async (req, res) => {
 
 const getAllTransports = async (req, res) => {
   try {
-    // Basic search filtering (e.g., ?origin=Delhi&destination=Agra)
-    const { origin, destination, type } = req.query;
+    const { origin, destination, type, maxPrice, minPrice } = req.query;
     let query = {};
+
+    // 1. Search by Origin and/or Destination
     if (origin) query.origin = { $regex: origin, $options: "i" };
     if (destination) query.destination = { $regex: destination, $options: "i" };
-    if (type) query.type = type;
+
+    // 2. Filter by exact Type (flight, train, bus, cab)
+    if (type) query.type = type.toLowerCase();
+
+    // 3. Filter by Price Range
+    if (maxPrice || minPrice) {
+      query.price = {};
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+      if (minPrice) query.price.$gte = Number(minPrice);
+    }
 
     const transports = await Transport.find(query).populate(
       "owner",
-      "firstName lastName",
+      "firstName lastName email",
     );
+
     return res.status(200).json({ transports });
   } catch (err) {
     return res
       .status(500)
-      .json({ message: "Error fetching transport", error: err.message });
+      .json({ message: "Error fetching transports", error: err.message });
   }
 };
 

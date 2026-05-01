@@ -48,16 +48,17 @@ const createDestination = async (req, res) => {
 // Get all destinations (with Search & Filter built-in)
 const getAllDestinations = async (req, res) => {
   try {
-    const { search, country } = req.query;
+    const { search, tag } = req.query;
     let query = {};
 
-    // If the user searches for "Pari", it will find "Paris" (Case-insensitive)
+    // 1. Search by Name (Case-insensitive)
     if (search) {
       query.name = { $regex: search, $options: "i" };
     }
-    // If the user filters by a specific country
-    if (country) {
-      query.country = { $regex: country, $options: "i" };
+
+    // 2. Filter by Tag (Checks if the array contains the tag)
+    if (tag) {
+      query.tags = { $in: [new RegExp(tag, "i")] };
     }
 
     const destinations = await Destination.find(query);

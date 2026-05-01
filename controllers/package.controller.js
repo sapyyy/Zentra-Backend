@@ -56,9 +56,28 @@ const createPackage = async (req, res) => {
 // Get all packages (with population)
 const getAllPackages = async (req, res) => {
   try {
-    // .populate() replaces the ID references with the actual document data
-    const packages = await Package.find()
-      .populate("agency", "firstName lastName email") // Only grab specific fields from the user
+    const { search, maxPrice, minPrice, destinationId } = req.query;
+    let query = {};
+
+    // 1. Search by Package Title
+    if (search) {
+      query.title = { $regex: search, $options: "i" };
+    }
+
+    // 2. Filter by Price Range
+    if (maxPrice || minPrice) {
+      query.price = {};
+      if (maxPrice) query.price.$lte = Number(maxPrice); // Less than or equal to
+      if (minPrice) query.price.$gte = Number(minPrice); // Greater than or equal to
+    }
+
+    // 3. Filter by specific Destination
+    if (destinationId) {
+      query.destination = destinationId;
+    }
+
+    const packages = await Package.find(query)
+      .populate("agency", "firstName lastName email")
       .populate("destination", "name country coordinates");
 
     return res.status(200).json({ packages });
